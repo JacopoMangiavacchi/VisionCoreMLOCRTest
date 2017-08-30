@@ -1,0 +1,6 @@
+framework module Pods_VisionCoreMLOCRTest {
+  umbrella header "Pods-VisionCoreMLOCRTest-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13178.6" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7sX-hn-4JG">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13156.2"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="qvj-81-Lqg">
+            <objects>
+                <viewController id="7sX-hn-4JG" customClass="ViewController" customModule="FaceVision" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="4Az-j4-uff"/>
+                        <viewControllerLayoutGuide type="bottom" id="7Rg-lh-7Lc"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="bg5-MD-NnJ">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9vj-6N-CFX">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                            </imageView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AO8-xX-I7J">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem systemItem="camera" id="GTj-AW-goo">
+                                        <connections>
+                                            <action selector="selectImageWithSender:" destination="7sX-hn-4JG" id="igK-S9-fZd"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="9vj-6N-CFX" firstAttribute="top" secondItem="bg5-MD-NnJ" secondAttribute="top" id="EOn-hz-eM3"/>
+                            <constraint firstAttribute="trailing" secondItem="9vj-6N-CFX" secondAttribute="trailing" id="UL3-ah-iPd"/>
+                            <constraint firstItem="9vj-6N-CFX" firstAttribute="leading" secondItem="bg5-MD-NnJ" secondAttribute="leading" id="diZ-OW-iL2"/>
+                            <constraint firstAttribute="bottom" secondItem="9vj-6N-CFX" secondAttribute="bottom" id="yVh-qI-XRP"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Ae3-hP-ddh"/>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="9vj-6N-CFX" id="tx3-t0-zTR"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tVI-lI-XHe" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="136.80000000000001" y="138.98050974512745"/>
+        </scene>
+    </scenes>
+</document>
