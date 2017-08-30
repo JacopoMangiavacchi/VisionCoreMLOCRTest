@@ -40,8 +40,21 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBAction func selectImage(sender: Any) {
         let picker = UIImagePickerController()
         picker.delegate = self
-        picker.sourceType = .camera
-        present(picker, animated: true)
+        
+        let alert = UIAlertController(title: "Photo",
+                                      message: "Take a new Picture or select one form Library",
+                                      preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Camera", style: .default) { _ in
+            picker.sourceType = .camera
+            self.present(picker, animated: true)
+        })
+        alert.addAction(UIAlertAction(title: "Photo Library", style: .default) { _ in
+            picker.sourceType = .photoLibrary
+            self.present(picker, animated: true)
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        self.present(alert, animated: true)
     }
     
     override func viewDidLoad() {
