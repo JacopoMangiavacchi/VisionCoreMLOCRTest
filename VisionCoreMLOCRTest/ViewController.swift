@@ -21,18 +21,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             DispatchQueue.global().async {
                 //OCR Entire main image
                 let recognizedText = self.OCRImage(image: self.selectedImage)
-//                DispatchQueue.main.async {
-//                    let alert = UIAlertController(title: "OCR",
-//                                                  message: recognizedText,
-//                                                  preferredStyle: .alert)
-//                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
-//                    self.present(alert, animated: true)
-//                }
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "OCR",
+                                                  message: recognizedText,
+                                                  preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                    self.present(alert, animated: true)
+                }
                 
                 
                 //Vision Detection of text area in the main image using CoreGraphics
                 if let cgImage = self.selectedImage.cgImage {
-                    let imageRequestsHandler = VNImageRequestHandler(cgImage: cgImage, orientation: CGImagePropertyOrientation.rightMirrored, options: [.properties : ""])
+                    let imageRequestsHandler = VNImageRequestHandler(cgImage: cgImage, orientation: CGImagePropertyOrientation.right, options: [.properties : ""])
                     do {
                         try imageRequestsHandler.perform(self.requests)
                     } catch {
@@ -40,16 +40,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     }
                 }
                 
-//                //Vision Detection of text area in the main image using CoreImage
-//                if let ciImage = CIImage(image: self.selectedImage) {
-//                    let imageToAnalyis = ciImage.oriented(forExifOrientation: Int32(self.selectedImage.imageOrientation.rawValue))
-//                    let imageRequestsHandler = VNImageRequestHandler(ciImage: imageToAnalyis, orientation: CGImagePropertyOrientation(rawValue: UInt32(self.selectedImage.imageOrientation.rawValue))!, options: [.properties : ""])
-//                    do {
-//                        try imageRequestsHandler.perform(self.requests)
-//                    } catch {
-//                        print(error)
-//                    }
-//                }
+                //Vision Detection of text area in the main image using CoreImage
+                if let ciImage = CIImage(image: self.selectedImage) {
+                    let imageToAnalyis = ciImage.oriented(forExifOrientation: Int32(self.selectedImage.imageOrientation.rawValue))
+                    let imageRequestsHandler = VNImageRequestHandler(ciImage: imageToAnalyis, orientation: CGImagePropertyOrientation.left /*CGImagePropertyOrientation(rawValue: UInt32(self.selectedImage.imageOrientation.rawValue))! */, options: [.properties : ""])
+                    do {
+                        try imageRequestsHandler.perform(self.requests)
+                    } catch {
+                        print(error)
+                    }
+                }
             }
         }
     }
@@ -92,14 +92,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 //                self.imageView.addSubview(view)
 //            }
             
-            // Redraw grapichs context
-            UIGraphicsBeginImageContextWithOptions(self.selectedImage.size, true, 0)
+            // draw on a transparent image the text boxes
+            UIGraphicsBeginImageContextWithOptions(self.selectedImage.size, false, 0)
 
             let context = UIGraphicsGetCurrentContext()
             context?.setStrokeColor(UIColor.green.cgColor)
             context?.translateBy(x: 0, y: self.selectedImage.size.height)
             context?.scaleBy(x: 1, y: -1)
-            context?.draw(self.selectedImage.cgImage!, in: CGRect(origin: .zero, size: self.selectedImage.size)) //must rotate !!!!!
+            //context?.draw(self.selectedImage.cgImage!, in: CGRect(origin: .zero, size: self.selectedImage.size)) //must rotate !!!!!
 
             for textObservation in observations {
                 let rect: CGRect = {
@@ -119,7 +119,19 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             let drawnImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
 
-            self.imageView.image = drawnImage
+            
+            
+            // Redraw grapichs context
+            UIGraphicsBeginImageContextWithOptions(self.selectedImage.size, true, 0)
+
+            self.selectedImage.draw(in: CGRect(origin: .zero, size: self.selectedImage.size))
+            drawnImage?.draw(in: CGRect(origin: .zero, size: self.selectedImage.size))
+            
+            let newImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+
+            
+            self.imageView.image = newImage
         }
     }
 
