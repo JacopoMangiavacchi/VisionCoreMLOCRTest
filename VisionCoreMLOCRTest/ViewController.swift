@@ -21,18 +21,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             DispatchQueue.global().async {
                 //OCR Entire main image
                 let recognizedText = self.OCRImage(image: self.selectedImage)
-                DispatchQueue.main.async {
-                    let alert = UIAlertController(title: "OCR",
-                                                  message: recognizedText,
-                                                  preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
-                    self.present(alert, animated: true)
-                }
+//                DispatchQueue.main.async {
+//                    let alert = UIAlertController(title: "OCR",
+//                                                  message: recognizedText,
+//                                                  preferredStyle: .alert)
+//                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+//                    self.present(alert, animated: true)
+//                }
                 
                 
                 //Vision Detection of text area in the main image
                 if let cgImage = self.selectedImage.cgImage {
-                    let imageRequestsHandler = VNImageRequestHandler(cgImage: cgImage, options: [.properties : ""])
+                    let imageRequestsHandler = VNImageRequestHandler(cgImage: cgImage, orientation: CGImagePropertyOrientation.rightMirrored, options: [.properties : ""])
                     do {
                         try imageRequestsHandler.perform(self.requests)
                     } catch {
@@ -71,10 +71,38 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
         
         DispatchQueue.main.async() {
-            for obs in observations {
-                print(obs)
-                //highlightWord(box: obs)
+//            for obs in observations {
+//                print(obs)
+//                //highlightWord(box: obs)
+//            }
+            
+            UIGraphicsBeginImageContextWithOptions(self.selectedImage.size, true, 0)
+            
+            let context = UIGraphicsGetCurrentContext()
+            context?.setStrokeColor(UIColor.green.cgColor)
+            context?.translateBy(x: 0, y: self.selectedImage.size.height)
+            context?.scaleBy(x: 1, y: -1)
+            context?.draw(self.selectedImage.cgImage!, in: CGRect(origin: .zero, size: self.selectedImage.size)) //must rotate
+            
+            for textObservation in observations {
+                let rect: CGRect = {
+                    var rect = CGRect()
+                    rect.origin.x = textObservation.boundingBox.origin.x * self.selectedImage.size.width
+                    rect.origin.y = textObservation.boundingBox.origin.y * self.selectedImage.size.height
+                    rect.size.width = textObservation.boundingBox.size.width * self.selectedImage.size.width
+                    rect.size.height = textObservation.boundingBox.size.height * self.selectedImage.size.height
+                    return rect
+                }()
+                
+                print(textObservation)
+                print(rect)
+                context?.stroke(rect, width: 5)
             }
+            
+            let drawnImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            
+            self.imageView.image = drawnImage  
         }
     }
 
