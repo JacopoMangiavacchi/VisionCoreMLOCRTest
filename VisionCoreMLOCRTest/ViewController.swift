@@ -64,6 +64,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         print(tesseract.recognizedText)
         
+        //tesseract bug
+        if tesseract.recognizedText == nil {
+            return ""
+        }
+        
         return tesseract.recognizedText
     }
 
