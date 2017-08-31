@@ -30,7 +30,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 //                }
                 
                 
-                //Vision Detection of text area in the main image
+                //Vision Detection of text area in the main image using CoreGraphics
                 if let cgImage = self.selectedImage.cgImage {
                     let imageRequestsHandler = VNImageRequestHandler(cgImage: cgImage, orientation: CGImagePropertyOrientation.rightMirrored, options: [.properties : ""])
                     do {
@@ -39,6 +39,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                         print(error)
                     }
                 }
+                
+//                //Vision Detection of text area in the main image using CoreImage
+//                if let ciImage = CIImage(image: self.selectedImage) {
+//                    let imageToAnalyis = ciImage.oriented(forExifOrientation: Int32(self.selectedImage.imageOrientation.rawValue))
+//                    let imageRequestsHandler = VNImageRequestHandler(ciImage: imageToAnalyis, orientation: CGImagePropertyOrientation(rawValue: UInt32(self.selectedImage.imageOrientation.rawValue))!, options: [.properties : ""])
+//                    do {
+//                        try imageRequestsHandler.perform(self.requests)
+//                    } catch {
+//                        print(error)
+//                    }
+//                }
             }
         }
     }
@@ -71,19 +82,25 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
         
         DispatchQueue.main.async() {
-//            for obs in observations {
-//                print(obs)
-//                //highlightWord(box: obs)
+//            // Show boxes as subview
+//            self.imageView.subviews.forEach({ (s) in
+//                s.removeFromSuperview()
+//            })
+//            for box in observations {
+//                let view = self.CreateBoxView(withColor: UIColor.green)
+//                view.frame = self.transformRect(fromRect: box.boundingBox, toViewRect: self.imageView)
+//                self.imageView.addSubview(view)
 //            }
             
+            // Redraw grapichs context
             UIGraphicsBeginImageContextWithOptions(self.selectedImage.size, true, 0)
-            
+
             let context = UIGraphicsGetCurrentContext()
             context?.setStrokeColor(UIColor.green.cgColor)
             context?.translateBy(x: 0, y: self.selectedImage.size.height)
             context?.scaleBy(x: 1, y: -1)
-            context?.draw(self.selectedImage.cgImage!, in: CGRect(origin: .zero, size: self.selectedImage.size)) //must rotate
-            
+            context?.draw(self.selectedImage.cgImage!, in: CGRect(origin: .zero, size: self.selectedImage.size)) //must rotate !!!!!
+
             for textObservation in observations {
                 let rect: CGRect = {
                     var rect = CGRect()
@@ -93,19 +110,41 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     rect.size.height = textObservation.boundingBox.size.height * self.selectedImage.size.height
                     return rect
                 }()
-                
+
                 print(textObservation)
                 print(rect)
                 context?.stroke(rect, width: 5)
             }
-            
+
             let drawnImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
-            
-            self.imageView.image = drawnImage  
+
+            self.imageView.image = drawnImage
         }
     }
 
+    
+    //Convert Vision Frame to UIKit Frame
+    func transformRect(fromRect: CGRect , toViewRect :UIView) -> CGRect {
+        var toRect = CGRect()
+        toRect.size.width = fromRect.size.width * toViewRect.frame.size.width
+        toRect.size.height = fromRect.size.height * toViewRect.frame.size.height
+        toRect.origin.y =  (toViewRect.frame.height) - (toViewRect.frame.height * fromRect.origin.y )
+        toRect.origin.y  = toRect.origin.y -  toRect.size.height
+        toRect.origin.x =  fromRect.origin.x * toViewRect.frame.size.width
+        
+        return toRect
+    }
+    
+    
+    func CreateBoxView(withColor : UIColor) -> UIView {
+        let view = UIView()
+        view.layer.borderColor = withColor.cgColor
+        view.layer.borderWidth = 5
+        view.backgroundColor = UIColor.clear
+        return view
+    }
+    
     
     @IBOutlet weak var imageView: UIImageView!
     
