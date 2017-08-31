@@ -8,32 +8,76 @@
 
 import UIKit
 import TesseractOCR
+import Vision
 
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, G8TesseractDelegate {
+    
+    internal var requests = [VNRequest]()
     
     fileprivate var selectedImage: UIImage! {
         didSet {
             imageView?.image = selectedImage
             DispatchQueue.global().async {
-                let tesseract:G8Tesseract = G8Tesseract(language:"eng")
-                tesseract.delegate = self
-                tesseract.charWhitelist = "ABCDEFGHIJKLMNOPQRSTUVXYWZ01234567890"
-                tesseract.image = self.selectedImage
-                tesseract.recognize()
-                
-                NSLog("%@", tesseract.recognizedText);
-                
+                //OCR Entire main image
+                let recognizedText = self.OCRImage(image: self.selectedImage)
                 DispatchQueue.main.async {
                     let alert = UIAlertController(title: "OCR",
-                                                  message: tesseract.recognizedText,
+                                                  message: recognizedText,
                                                   preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
                     self.present(alert, animated: true)
                 }
+                
+                
+                //Vision Detection of text area in the main image
+                if let cgImage = self.selectedImage.cgImage {
+                    let imageRequestsHandler = VNImageRequestHandler(cgImage: cgImage, options: [.properties : ""])
+                    do {
+                        try imageRequestsHandler.perform(self.requests)
+                    } catch {
+                        print(error)
+                    }
+                }
             }
         }
     }
+    
+    
+    func OCRImage(image: UIImage) -> String {
+        let tesseract:G8Tesseract = G8Tesseract(language:"eng")
+        tesseract.delegate = self
+        tesseract.charWhitelist = "ABCDEFGHIJKLMNOPQRSTUVXYWZ01234567890"
+        tesseract.image = image
+        tesseract.recognize()
+        
+        print(tesseract.recognizedText)
+        
+        return tesseract.recognizedText
+    }
+
+    
+    func startTextDetection() {
+        let textRequest = VNDetectTextRectanglesRequest(completionHandler: self.detectTextHandler)
+        textRequest.reportCharacterBoxes = false
+        self.requests = [textRequest]
+    }
+    
+    
+    func detectTextHandler(request: VNRequest, error: Error?) {
+        guard let observations = request.results as? [VNTextObservation] else {
+            print("no result or wrong cast")
+            return
+        }
+        
+        DispatchQueue.main.async() {
+            for obs in observations {
+                print(obs)
+                //highlightWord(box: obs)
+            }
+        }
+    }
+
     
     @IBOutlet weak var imageView: UIImageView!
     
@@ -59,6 +103,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        startTextDetection()
     }
     
     func imagePickerController(_ picker: UIImagePickerController,
